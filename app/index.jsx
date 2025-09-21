@@ -50,18 +50,23 @@ export default function Home() {
 
   // [AKSI] Hapus 1 tugas
   const handleDelete = async (task) => {
-    Alert.alert('Konfirmasi', 'Hapus tugas ini?', [
-      { text: 'Batal' },
-      {
-        text: 'Ya',
-        onPress: async () => {
-          const updated = tasks.filter(t => t.id !== task.id);
-          setTasks(updated);
-          await saveTasks(updated);
-        }
-      }
-    ]);
+    const updated = tasks.filter(t => t.id !== task.id);
+    setTasks(updated);
+    await saveTasks(updated);
   };
+  // const handleDelete = async (task) => {
+  //   Alert.alert('Konfirmasi', 'Hapus tugas ini?', [
+  //     { text: 'Batal' },
+  //     {
+  //       text: 'Ya',
+  //       onPress: async () => {
+  //         const updated = tasks.filter(t => t.id !== task.id);
+  //         setTasks(updated);
+  //         await saveTasks(updated);
+  //       }
+  //     }
+  //   ]);
+  // };
 
   // [INFO] Toolbar: Done/Total & Overdue
   const doneCount = useMemo(() => tasks.filter(t => t.status === 'done').length, [tasks]);
@@ -71,27 +76,37 @@ export default function Home() {
   , [tasks, today]);
 
   // [AKSI] Clear
-  const handleClearDone = () => {
-    if (!doneCount) { Alert.alert('Info', 'Tidak ada tugas Done.'); return; }
-    Alert.alert('Hapus Tugas Selesai', `Yakin hapus ${doneCount} tugas selesai?`, [
-      { text:'Batal' },
-      {
-        text:'Hapus', style:'destructive', onPress: async () => {
-          const kept = tasks.filter(t => t.status !== 'done');
-          setTasks(kept);
-          await saveTasks(kept);
-        }
-      }
-    ]);
+  
+  const handleClearDone = async (task) => {
+    const kept = tasks.filter(t => t.status !== 'done');
+    setTasks(kept);
+    await saveTasks(kept);
   };
+  // const handleClearDone = () => {
+  //   if (!doneCount) { Alert.alert('Info', 'Tidak ada tugas Done.'); return; }
+  //   Alert.alert('Hapus Tugas Selesai', `Yakin hapus ${doneCount} tugas selesai?`, [
+  //     { text:'Batal' },
+  //     {
+  //       text:'Hapus', style:'destructive', onPress: async () => {
+  //         const kept = tasks.filter(t => t.status !== 'done');
+  //         setTasks(kept);
+  //         await saveTasks(kept);
+  //       }
+  //     }
+  //   ]);
+  // };
 
-  const handleClearAll = () => {
-    if (!tasks.length) { Alert.alert('Info', 'Daftar tugas kosong.'); return; }
-    Alert.alert('Konfirmasi', 'Hapus semua tugas?', [
-      { text:'Batal' },
-      { text:'Ya', onPress: async () => { setTasks([]); await clearTasks(); } }
-    ]);
+  const handleClearAll = async (task) => {
+    setTasks([]); 
+    await clearTasks();
   };
+  // const handleClearAll = () => {
+  //   if (!tasks.length) { Alert.alert('Info', 'Daftar tugas kosong.'); return; }
+  //   Alert.alert('Konfirmasi', 'Hapus semua tugas?', [
+  //     { text:'Batal' },
+  //     { text:'Ya', onPress: async () => { setTasks([]); await clearTasks(); } }
+  //   ]);
+  // };
 
   // [FILTER] status + kategori + prioritas
   const filteredTasks = useMemo(() => {
