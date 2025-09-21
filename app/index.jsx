@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo, useCallback } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { SafeAreaView, Text, FlatList, StyleSheet, View, Button, Alert } from 'react-native';
+import { SafeAreaView, Text, FlatList, StyleSheet, View, Button, Alert, SectionList } from 'react-native';
 import TaskItem from '../src/components/TaskItem';
 import FilterToolbarFancy from '../src/components/FilterToolbarFancy';
 import AddCategoryModal from '../src/components/AddCategoryModal';
@@ -152,6 +152,20 @@ export default function Home() {
     setCategoryFilter(cat.key);
     setShowCatModal(false);
   };
+   const groupedTasks = useMemo(() => {
+  const groups = {};
+
+  sortedTasks.forEach(task => {
+    const cat = task.category || 'Umum';
+    if (!groups[cat]) groups[cat] = [];
+    groups[cat].push(task);
+  });
+
+  return Object.keys(groups).map(cat => ({
+    title: cat,
+    data: groups[cat],
+  }));
+}, [sortedTasks]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -180,14 +194,24 @@ export default function Home() {
       </View>
 
       {/* [LIST] Tugas tersortir */}
-      <FlatList
-        data={sortedTasks}
+      <SectionList
+        sections={groupedTasks}
         keyExtractor={(item) => item.id}
         contentContainerStyle={{ padding: 16 }}
         renderItem={({ item }) => (
-          <TaskItem task={item} categories={categories} onToggle={handleToggle} onDelete={handleDelete} />
+          <TaskItem
+            task={item}
+            categories={categories}
+            onToggle={handleToggle}
+            onDelete={handleDelete}
+          />
         )}
-        ListEmptyComponent={<Text style={{ textAlign: 'center' }}>Tidak ada tugas</Text>}
+        renderSectionHeader={({ section: { title } }) => (
+          <Text style={styles.sectionHeader}>{title}</Text>
+        )}
+        ListEmptyComponent={
+          <Text style={{ textAlign: 'center' }}>Tidak ada tugas</Text>
+        }
       />
 
       {/* [OPSIONAL] Modal tambah kategori dari Home */}
@@ -214,4 +238,15 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   toolbarText: { fontWeight: '600', color: '#334155' },
+   sectionHeader: {
+  fontSize: 16,
+  fontWeight: '600',
+  color: '#0f172a',
+  backgroundColor: '#f1f5f9',
+  paddingVertical: 8,
+  paddingHorizontal: 8,
+  borderRadius: 8,
+  marginBottom: 8,
+  marginTop: 8,
+},
 });

@@ -10,14 +10,34 @@ export default function TaskItem({ task, categories, onToggle, onDelete }) {
 
   // [OPSIONAL] progress 0-100 → jika tidak ada, tidak dirender
   const pct = typeof task.progress === 'number' ? Math.max(0, Math.min(100, task.progress)) : null;
-
+  
+  let deadlineInfo = null;
+  if (task.deadline) {
+    const today = new Date().toISOString().slice(0, 10);
+    if (task.deadline < today) {
+      deadlineInfo = <Text style={[styles.deadline, { color: '#dc2626' }]}>Overdue</Text>;
+    } else {
+      const diff = Math.ceil(
+        (new Date(task.deadline) - new Date(today)) / (1000 * 60 * 60 * 24)
+      );
+      deadlineInfo = (
+        <Text style={[styles.deadline, { color: '#0f172a' }]}>
+          Sisa {diff} hari
+        </Text>
+      );
+    }
+  }
   return (
-    <View style={[styles.card, isDone && styles.cardDone]}>
+    <View style={[styles.card, isDone && styles.cardDone,
+      task.priority?.toLowerCase() === 'low' && styles.cardLow,
+      task.priority?.toLowerCase() === 'medium' && styles.cardMedium,
+      task.priority?.toLowerCase() === 'high' && styles.cardHigh,
+    ]}>
       {/* [AKSI] Ketuk untuk toggle status Done/Pending */}
       <TouchableOpacity onPress={() => onToggle?.(task)} style={{ flex: 1 }}>
         <Text style={[styles.title, isDone && styles.strike]}>{task.title}</Text>
 
-        {!!task.deadline && <Text style={styles.deadline}>Deadline: {task.deadline}</Text>}
+        {!!task.deadline && <Text style={styles.deadline}>Deadline: {task.deadline}</Text>}{deadlineInfo}
         {!!task.description && <Text style={styles.desc}>{task.description}</Text>}
 
         {/* [UPDATE] Badge kategori & prioritas */}
@@ -63,4 +83,7 @@ const styles = StyleSheet.create({
   progressWrap: { marginTop: 10, height: 8, backgroundColor: '#e5e7eb', borderRadius: 999, overflow: 'hidden', position: 'relative' },
   progressBar: { height: '100%', backgroundColor: '#0f172a' },
   progressText: { position: 'absolute', right: 8, top: -18, fontSize: 12, color: '#334155', fontWeight: '600' },
+  cardHigh: { backgroundColor: '#ea9ca1ff' },   // merah muda
+  cardMedium: { backgroundColor: '#f6ec7eff' }, // kuning muda
+  cardLow: { backgroundColor: '#d6dce2ff' },    // abu-abu muda
 });
